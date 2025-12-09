@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Aggregator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .checkbox-group input {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .checkbox-group label {
+            margin-bottom: 0;
+            font-weight: normal;
+        }
+        
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        @media (max-width: 600px) {
+            .row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        button {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-primary {
+            background: #0066cc;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0052a3;
+        }
+        
+        .btn-secondary {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #218838;
+        }
+        
+        .loading {
+            display: none;
+            align-items: center;
+            gap: 0.5rem;
+            color: #666;
+            margin-top: 1rem;
+        }
+        
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-top-color: #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .results-count {
+            color: #666;
+        }
+        
+        .job-list {
+            list-style: none;
+        }
+        
+        .job-item {
+            padding: 1.25rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .job-item:last-child {
+            border-bottom: none;
+        }
+        
+        .job-title {
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.25rem;
+        }
+        
+        .job-company {
+            color: #0066cc;
+            margin-bottom: 0.5rem;
+        }
+        
+        .job-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .job-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .job-description {
+            font-size: 0.875rem;
+            color: #444;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+        
+        .job-links {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .job-links a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+        
+        .job-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-remote {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-hybrid {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-source {
+            background: #e9ecef;
+            color: #495057;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+        
+        footer {
+            text-align: center;
+            color: #999;
+            font-size: 0.875rem;
+            margin-top: 2rem;
+        }
+        
+        footer a {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Job Aggregator</h1>
+        <p class="subtitle">Search Adzuna & Reed • Deduplicated results • Export to CSV</p>
+        
+        <div class="card">
+            <form id="searchForm">
+                <div class="form-group">
+                    <label for="keywords">Job Title / Keywords *</label>
+                    <input type="text" id="keywords" name="keywords" placeholder="e.g., backend developer, python, django" required>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" value="london" placeholder="e.g., london, manchester">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="min_salary">Minimum Salary (£)</label>
+                        <input type="number" id="min_salary" name="min_salary" placeholder="e.g., 30000">
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="form-group">
+                        <label for="max_days_old">Posted Within (days)</label>
+                        <input type="number" id="max_days_old" name="max_days_old" min="1" max="30" placeholder="e.g., 7">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="max_results">Max Results</label>
+                        <input type="number" id="max_results" name="max_results" value="50" min="1" max="200">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remote_only" name="remote_only">
+                        <label for="remote_only">Remote / Hybrid only</label>
+                    </div>
+                </div>
+                
+                <div class="buttons">
+                    <button type="submit" class="btn-primary">Search Jobs</button>
+                    <button type="button" class="btn-secondary" id="exportBtn" disabled>Download CSV</button>
+                </div>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <span>Searching Adzuna and Reed...</span>
+            </div>
+            
+            <div class="error" id="error"></div>
+        </div>
+        
+        <div class="card results" id="results">
+            <div class="results-header">
+                <h2>Results</h2>
+                <span class="results-count" id="resultsCount"></span>
+            </div>
+            <ul class="job-list" id="jobList"></ul>
+        </div>
+        
+        <footer>
+            Built by <a href="https://github.com/vincent-ngobeh" target="_blank">Vincent Ngobeh</a> • 
+            Data from <a href="https://www.adzuna.co.uk" target="_blank">Adzuna</a> & <a href="https://www.reed.co.uk" target="_blank">Reed</a>
+        </footer>
+    </div>
+    
+    <script>
+        let currentJobs = [];
+        
+        const form = document.getElementById('searchForm');
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const results = document.getElementById('results');
+        const jobList = document.getElementById('jobList');
+        const resultsCount = document.getElementById('resultsCount');
+        const exportBtn = document.getElementById('exportBtn');
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Reset state
+            error.style.display = 'none';
+            results.style.display = 'none';
+            loading.style.display = 'flex';
+            exportBtn.disabled = true;
+            
+            // Build query params
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            
+            params.append('keywords', formData.get('keywords'));
+            params.append('location', formData.get('location') || 'london');
+            params.append('remote_only', formData.get('remote_only') ? 'true' : 'false');
+            params.append('max_results', formData.get('max_results') || '50');
+            
+            if (formData.get('min_salary')) {
+                params.append('min_salary', formData.get('min_salary'));
+            }
+            if (formData.get('max_days_old')) {
+                params.append('max_days_old', formData.get('max_days_old'));
+            }
+            
+            try {
+                const response = await fetch(`/jobs/search?${params}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.detail || 'Search failed');
+                }
+                
+                currentJobs = data.jobs;
+                displayResults(data);
+                
+            } catch (err) {
+                error.textContent = err.message;
+                error.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        });
+        
+        function displayResults(data) {
+            jobList.innerHTML = '';
+            
+            if (data.jobs.length === 0) {
+                jobList.innerHTML = '<li class="job-item">No jobs found. Try different keywords or filters.</li>';
+                resultsCount.textContent = '0 jobs found';
+                results.style.display = 'block';
+                return;
+            }
+            
+            resultsCount.textContent = `${data.total_results} jobs from ${data.sources_queried.join(' & ')}`;
+            
+            data.jobs.forEach(job => {
+                const li = document.createElement('li');
+                li.className = 'job-item';
+                
+                const salary = formatSalary(job.salary_min, job.salary_max);
+                const remoteBadge = job.remote === 'Yes' ? '<span class="badge badge-remote">Remote</span>' :
+                                   job.remote === 'Hybrid' ? '<span class="badge badge-hybrid">Hybrid</span>' : '';
+                
+                li.innerHTML = `
+                    <div class="job-title">${escapeHtml(job.title)}</div>
+                    <div class="job-company">${escapeHtml(job.company)}</div>
+                    <div class="job-meta">
+                        <span>📍 ${escapeHtml(job.location)}</span>
+                        ${salary ? `<span>💰 ${salary}</span>` : ''}
+                        ${job.date_posted ? `<span>📅 ${job.date_posted}</span>` : ''}
+                        ${remoteBadge}
+                        <span class="badge badge-source">${job.source}</span>
+                    </div>
+                    <div class="job-description">${escapeHtml(job.description)}</div>
+                    <div class="job-links">
+                        <a href="${job.apply_url}" target="_blank">Apply →</a>
+                        <a href="${job.careers_search_url}" target="_blank">Company Careers</a>
+                    </div>
+                `;
+                
+                jobList.appendChild(li);
+            });
+            
+            results.style.display = 'block';
+            exportBtn.disabled = false;
+        }
+        
+        function formatSalary(min, max) {
+            if (!min && !max) return null;
+            if (min && max) return `£${min.toLocaleString()} - £${max.toLocaleString()}`;
+            if (min) return `£${min.toLocaleString()}+`;
+            return `Up to £${max.toLocaleString()}`;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        exportBtn.addEventListener('click', async () => {
+            if (currentJobs.length === 0) return;
+            
+            // Build same params as search
+            const formData = new FormData(form);
+            const params = new URLSearchParams();
+            
+            params.append('keywords', formData.get('keywords'));
+            params.append('location', formData.get('location') || 'london');
+            params.append('remote_only', formData.get('remote_only') ? 'true' : 'false');
+            params.append('max_results', formData.get('max_results') || '50');
+            
+            if (formData.get('min_salary')) {
+                params.append('min_salary', formData.get('min_salary'));
+            }
+            if (formData.get('max_days_old')) {
+                params.append('max_days_old', formData.get('max_days_old'));
+            }
+            
+            // Trigger download
+            window.location.href = `/jobs/export?${params}`;
+        });
+    </script>
+</body>
+</html>

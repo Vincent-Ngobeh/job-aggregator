@@ -21,9 +21,9 @@ Built to streamline job searching by combining multiple sources into a single, c
 - **Pydantic** - Data validation
 - **Jinja2** - HTML templating
 
-# Job Aggregator
+**Live Demo:** [job-aggregator-bvk1.onrender.com](https://job-aggregator-bvk1.onrender.com)
 
-🚀 **Live Demo:** [job-aggregator-bvk1.onrender.com](https://job-aggregator-bvk1.onrender.com)
+**API Docs:** [Api Documentation](https://job-aggregator-bvk1.onrender.com/docs)
 
 A FastAPI application that aggregates job listings from Adzuna and Reed APIs
 

@@ -30,7 +30,7 @@ TEMPLATES_DIR = Path(__file__).parent / "templates"
 async def home():
     """Serve the search form HTML page"""
     template_path = TEMPLATES_DIR / "index.html"
-    return template_path.read_text()
+    return template_path.read_text(encoding="utf-8")
 
 
 @app.get("/health")
